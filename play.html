@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" sizes="32x32" href="/prbetlogo_square.png">
+  <link rel="apple-touch-icon" href="/prbetlogo_square.png">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="CS2 弗一把在线猜选手游戏">
+  <title>PR弗一把 · CS2 猜选手</title>
+  <link rel="stylesheet" href="css/game.css">
+  <link rel="stylesheet" href="css/hltv-overrides.css">
+</head>
+<body class="game-page">
+  <div class="grain"></div><div class="glow glow-a"></div><div class="glow glow-b"></div>
+  <header class="site-header app-header">
+    <a class="logo app-brand" href="/play"><picture class="brand-art"><source media="(max-width:600px)" srcset="/prbetlogo_square.png"><img src="/prbetlogo.png" alt="PRBET"></picture><span><b>PR弗一把</b><small>CS2 PLAYER GAME</small></span></a>
+    <nav class="primary-nav">
+      <a href="/">选择游戏</a>
+      <a href="/tool">推理工具 <span>↗</span></a>
+      <a href="/arknights">方舟弗一把</a>
+    </nav>
+    <div class="header-actions"><div class="server-pill"><i></i><span id="serverText">连接中</span></div></div>
+  </header>
+
+  <main>
+    <section class="hero" id="homeHero">
+      <div class="hero-copy">
+        <p class="kicker"><span></span> WHO IS THE PLAYER?</p>
+        <h1>PR<em>弗一把</em></h1>
+        <p>八次机会，根据颜色与箭头反馈锁定系统选中的 CS2 职业选手。</p>
+        <div class="home-hero-actions"><button class="secondary-cta" id="openRules" type="button">查看详细规则</button></div>
+      </div>
+    </section>
+
+    <section class="mode-shell">
+      <section class="mode-view active home-view" id="view-home">
+        <div class="home-mode-head"><div><p class="step-label">CHOOSE A MODE</p><h2>选择游戏模式</h2></div><span>单人练习或与其他玩家对战</span></div>
+        <div class="home-mode-grid">
+          <article class="home-mode-card"><b>01</b><h3>单人挑战</h3><p>独立完成八次猜测，随时可以查看答案。</p><button class="cta" type="button" data-view="single">开始单人挑战 <span>→</span></button></article>
+          <article class="home-mode-card"><b>02</b><h3>随机匹配</h3><p>匹配一名对手，进行固定 BO3 对战。</p><button class="cta" type="button" data-view="match">寻找对手 <span>→</span></button></article>
+          <article class="home-mode-card"><b>03</b><h3>自建房间</h3><p>邀请 2-4 名玩家，自定义获胜分数与每轮时间。</p><button class="cta" type="button" data-view="room">创建或加入房间 <span>→</span></button></article>
+        </div>
+      </section>
+
+
+      <section class="mode-view" id="view-single">
+        <button class="mode-back" type="button">← 返回游戏主页</button>
+        <div class="setup-grid" id="singleSetup">
+          <div><p class="step-label">SOLO CHALLENGE</p><h2>开始一局单人挑战</h2><p>系统会从现役选手中随机选择答案。猜中昵称立即获胜，最多可以猜 8 次。</p></div>
+          <form id="singleStartForm" class="setup-form"><label>你的昵称<input id="singleName" maxlength="18" placeholder="输入显示昵称"></label><label class="question-setting">题库<select id="singleQuestionMode"><option value="full">完整版题库</option><option value="simple">简单版 · Major 选手</option><option value="beginner">新手版 · 明星与冠军</option></select></label><button class="cta" type="submit">开始游戏 <b>→</b></button></form>
+        </div>
+        <div id="singleGame" hidden></div>
+      </section>
+
+      <section class="mode-view" id="view-match">
+        <button class="mode-back" type="button">← 返回游戏主页</button>
+        <div class="match-center">
+          <div class="versus-visual"><div class="player-orb">YOU</div><span><i></i>VS<i></i></span><div class="player-orb ghost">?</div></div>
+          <p class="step-label">QUICK MATCH</p><h2>随机寻找一名对手</h2><p>和另一位玩家猜同一个答案。</p>
+          <label class="name-field">你的昵称<input id="matchName" maxlength="18" placeholder="输入显示昵称"></label>
+          <div class="match-format-lock"><span>比赛赛制</span><strong>BO3</strong></div><label class="match-setting">题库<select id="matchQuestionMode"><option value="full">完整版题库</option><option value="simple">简单版 · Major 选手</option><option value="beginner">新手版 · 明星与冠军</option></select></label>
+          <button class="cta wide" id="matchButton">开始匹配 <b>⌁</b></button>
+          <button class="quiet-button" id="cancelMatch" hidden>取消匹配</button>
+          <div class="match-status" id="matchStatus" hidden><i></i><span>正在搜索对手</span></div>
+        </div>
+      </section>
+
+      <section class="mode-view" id="view-room">
+        <button class="mode-back" type="button">← 返回游戏主页</button>
+        <div class="room-options">
+          <article class="room-option-enter room-option-host"><div class="room-option-heading"><div class="option-icon">＋</div><div><p class="step-label">HOST A ROOM</p><h2>创建私人房间</h2><p>设定规则并生成六位房间码。</p></div></div><label>你的昵称<input id="hostName" maxlength="18" placeholder="输入显示昵称"></label><div class="room-setting-grid"><label class="match-setting">房间人数<select id="roomMaxPlayers"><option value="2">最多 2 人</option><option value="3">最多 3 人</option><option value="4">最多 4 人</option></select></label><label class="match-setting">获胜分数<select id="roomScoreToWin"><option value="1">先得 1 分</option><option value="2">先得 2 分</option><option value="3" selected>先得 3 分</option><option value="4">先得 4 分</option><option value="5">先得 5 分</option><option value="6">先得 6 分</option><option value="7">先得 7 分</option><option value="8">先得 8 分</option><option value="9">先得 9 分</option></select></label><label class="match-setting round-duration-setting">每轮时间<div class="number-with-unit"><input id="roomRoundDuration" type="number" min="30" max="600" step="15" value="120" inputmode="numeric"><span>秒</span></div></label></div><div class="room-setting-row"><label class="match-setting">题库<select id="roomQuestionMode"><option value="full">完整版题库</option><option value="simple">简单版 · Major 选手</option><option value="beginner">新手版 · 明星与冠军</option></select></label><label class="check-field"><input id="showOpponentGuesses" type="checkbox" checked><span><b>公开猜测</b><small>对局中显示其他玩家的猜测</small></span></label></div><button class="cta" id="createRoom">创建房间 <b>→</b></button></article>
+          <div class="or"><span>OR</span></div>
+          <article class="room-option-enter room-option-join"><div class="room-option-heading"><div class="option-icon">#</div><div><p class="step-label">JOIN A ROOM</p><h2>加入已有房间</h2><p>使用六位房间码参赛或观战。</p></div></div><label>你的昵称<input id="joinName" maxlength="18" placeholder="输入显示昵称"></label><label>房间码<input id="roomCodeInput" class="code-input" maxlength="6" inputmode="numeric" pattern="[0-9]{6}" placeholder="123456"></label><div class="room-join-actions"><button class="cta" id="joinRoom">加入房间 <b>→</b></button><button class="secondary-cta" id="watchRoom">仅观战</button></div></article>
+        </div>
+      </section>
+
+    </section>
+
+    <section class="site-bridge" id="homeBridge" aria-label="PR生态入口">
+      <a class="site-bridge-card site-bridge-primary" href="#" target="_blank" rel="noopener noreferrer"><span>PRBET · CS2 / 无畏契约</span><strong>赛事竞猜，前往 PRBET <b>↗</b></strong><small>关注 CS2 与无畏契约赛事动态和竞猜内容</small></a>
+    </section>
+
+    <section class="arena" id="arena" hidden></section>
+
+    <section class="rules-strip">
+      <div><span class="color green"></span><p><b>正确</b></p></div>
+      <div><span class="color yellow"></span><p><b>接近</b></p></div>
+      <div><span class="color gray"></span><p><b>不匹配</b></p></div>
+      <div><span class="arrow">↑</span><p><b>答案更大 / 更小</b></p></div>
+      <a class="tool-cta" href="/tool" target="_blank" rel="noopener">卡住了？打开推理工具 <span>→</span></a>
+    </section>
+  </main>
+  <div class="game-result-overlay room-created-overlay" id="roomCreatedModal" hidden>
+    <section class="game-result-dialog room-created-dialog" role="dialog" aria-modal="true" aria-labelledby="roomCreatedTitle">
+      <p class="step-label">ROOM CREATED</p>
+      <h3 id="roomCreatedTitle">&#25151;&#38388;&#24050;&#21019;&#24314;</h3>
+      <p>&#25226;&#25151;&#38388;&#30721;&#21457;&#32473;&#26379;&#21451;&#65292;&#20934;&#22791;&#22909;&#21518;&#20877;&#36827;&#20837;&#22823;&#21381;&#12290;</p>
+      <button class="created-room-code" id="createdRoomCode" type="button" title="&#28857;&#20987;&#22797;&#21046;&#25151;&#38388;&#30721;"></button>
+      <div class="room-created-actions">
+        <button class="secondary-cta" id="cancelCreatedRoom" type="button">&#21462;&#28040;&#24182;&#35299;&#25955;</button>
+        <button class="cta" id="enterCreatedRoom" type="button">&#36827;&#20837;&#25151;&#38388; <b>&rarr;</b></button>
+      </div>
+    </section>
+  </div>
+  <div class="game-result-overlay room-invite-overlay" id="roomInviteModal" hidden>
+    <section class="game-result-dialog room-invite-dialog" role="dialog" aria-modal="true" aria-labelledby="roomInviteTitle">
+      <div class="invite-kind" id="roomInviteKind">PRIVATE ROOM INVITE</div>
+      <p class="step-label" id="roomInviteEyebrow">ROOM INVITATION</p>
+      <h3 id="roomInviteTitle">你收到一个房间邀请</h3>
+      <p id="roomInviteDescription">输入昵称后即可加入。进入房间后，全员准备并由房主开始对局。</p>
+      <div class="invite-room-code"><span>房间码</span><strong id="roomInviteCode">000000</strong></div>
+      <label class="invite-name-field">你的昵称<input id="roomInviteName" maxlength="18" placeholder="输入显示昵称" autocomplete="nickname"></label>
+      <div class="dialog-actions">
+        <button class="secondary-cta" id="cancelRoomInvite" type="button">返回主页</button>
+        <button class="cta" id="acceptRoomInvite" type="button">加入房间 <b>→</b></button>
+      </div>
+    </section>
+  </div>
+  <div class="game-result-overlay rules-modal-overlay" id="rulesModal" hidden>
+    <section class="game-result-dialog rules-dialog" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
+      <button class="rules-close" id="closeRules" type="button" aria-label="关闭规则">×</button>
+      <p class="step-label">HOW TO PLAY</p><h2 id="rulesTitle">游戏规则</h2>
+      <div class="rules-content">
+        <section><h3>目标与胜负</h3><p>系统提前选定一名职业选手。每局最多猜 8 次，昵称完全正确立即获胜；8 次未猜中，或主动查看答案，则本局失败。</p></section>
+        <section><h3>反馈含义</h3><ul class="rules-feedback"><li><i class="green"></i><b>绿色</b><span>该项完全正确</span></li><li><i class="yellow"></i><b>黄色</b><span>赛区相同或数值接近</span></li><li><i class="gray"></i><b>灰色</b><span>差距较大或不匹配</span></li><li><i class="arrow">↑↓</i><b>箭头</b><span>答案数值更大或更小</span></li></ul></section>
+        <section class="rules-fields"><h3>字段判定</h3><div class="field-rule-list"><div class="field-rule field-rule-exact"><span class="field-rule-kind"><i></i>只判断完全正确</span><strong>昵称 · 队伍 · 位置 · 状态</strong></div><div class="field-rule field-rule-close"><span class="field-rule-kind"><i></i>黄色表示接近</span><dl><div><dt>国家</dt><dd>不同，但属于同一赛区</dd></div><div><dt>年龄</dt><dd>与答案相差不超过 3 岁</dd></div><div><dt>Major</dt><dd>冠军数或参赛数相差不超过 1 次</dd></div></dl></div></div></section>
+        <section><h3>多人模式</h3><p>双方作答时间独立计算。对局中可以看到对手反馈；每局结束后公开答案与猜测。决胜局结束后可以查看整场所有对局记录。</p></section>
+        <section class="rules-regions"><div class="rules-region-heading"><div><h3>赛区划分</h3><p>国家猜错但属于同一赛区时，该项显示黄色。</p></div><strong>BLAST 分区</strong></div><div class="region-rule-grid"><article class="region-rule-item region-eu"><b>欧洲赛区</b><span>西欧、南欧、巴尔干、科索沃、波罗的海三国与乌克兰</span></article><article class="region-rule-item region-cis"><b>独联体赛区</b><span>俄罗斯、白俄罗斯、哈萨克斯坦、阿塞拜疆、乌兹别克斯坦等</span></article><article class="region-rule-item region-apac"><b>亚太赛区</b><span>中国及港澳台、东南亚、中东（以色列除外）与土耳其</span></article><article class="region-rule-item region-oce"><b>大洋洲赛区</b><span>澳大利亚、新西兰</span></article><article class="region-rule-item region-na"><b>北美洲赛区</b><span>美国、加拿大、危地马拉等北美洲与中美洲国家</span></article><article class="region-rule-item region-sa"><b>南美洲赛区</b><span>巴西、阿根廷、乌拉圭、智利等南美洲国家</span></article><article class="region-rule-item region-af"><b>非洲和以色列</b><span>南非、以色列</span></article></div></section>
+      </div>
+      <div class="dialog-actions"><button class="cta" id="closeRulesAction" type="button">明白了</button></div>
+    </section>
+  </div>
+  <div class="toast" id="gameToast" role="status" aria-live="polite" aria-atomic="true"></div>
+  <footer class="site-footer"><span>PR弗一把</span></footer>
+  <script src="js/flags.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

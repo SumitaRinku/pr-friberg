@@ -1,0 +1,26 @@
+[Unit]
+Description=PR弗一把 CS2 player game and admin console
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/var/www/friberg
+EnvironmentFile=/var/www/friberg/.env
+ExecStart=/usr/bin/node /var/www/friberg/admin-server.mjs
+Restart=always
+RestartSec=5
+TimeoutStopSec=20
+KillSignal=SIGTERM
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/www/friberg/data
+UMask=0027
+
+[Install]
+WantedBy=multi-user.target
+

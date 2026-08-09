@@ -1,0 +1,20 @@
+{
+  "name": "cs2-fragle-solver",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "test": "node tests/engine.test.js && node tests/sync.test.mjs && node tests/server.test.mjs && node tests/game.test.mjs && node tests/app-server.test.mjs && node tests/admin-server.test.mjs && node tests/arknights.test.mjs",
+    "start": "node admin-server.mjs",
+    "sync:players": "node scripts/sync-pandascore.mjs",
+    "sync:major": "node scripts/sync-major-records.mjs",
+    "sync:major-pool": "node scripts/sync-player-data.mjs --local",
+    "sync:roles": "node scripts/sync-liquipedia-roles.mjs",
+    "sync:arknights": "node scripts/sync-arknights.mjs",
+    "sync:arknights:data": "node scripts/generate-arknights-data.mjs",
+    "sync:all": "node scripts/sync-major-records.mjs && node scripts/sync-pandascore.mjs && node scripts/sync-liquipedia-roles.mjs && node scripts/sync-player-data.mjs --local"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

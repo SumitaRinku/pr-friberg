@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" sizes="32x32" href="/prbetlogo_square.png">
+  <link rel="apple-touch-icon" href="/prbetlogo_square.png">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PR弗一把 管理后台</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="css/hltv-overrides.css">
+</head>
+<body>
+  <header class="admin-header"><a href="/play" class="admin-brand"><picture class="brand-art"><source media="(max-width:600px)" srcset="/prbetlogo_square.png"><img src="/prbetlogo.png" alt="PRBET"></picture><span><b>PR弗一把</b><small>CONTROL PANEL</small></span></a><nav><a href="/play">游戏大厅</a><a href="/tool">推理工具</a><button id="logoutButton" hidden>退出</button></nav></header>
+  <main>
+    <section class="login-panel" id="loginPanel"><p class="eyebrow">SECURE ACCESS</p><h1>管理员登录</h1><p>管理选手数据库、PandaScore 同步和服务器运行参数。</p><form id="loginForm"><label>管理员密码<input id="passwordInput" type="password" autocomplete="current-password" required autofocus></label><button type="submit">登录后台</button><span id="loginError"></span></form></section>
+
+    <section id="dashboard" hidden>
+      <div class="page-title"><div><p class="eyebrow">OPERATIONS</p><h1>数据与服务</h1><p>所有修改立即生效，并持久化到服务器缓存。</p></div><button class="primary" id="syncButton">立即同步 PandaScore</button></div>
+      <div class="status-message" id="statusMessage" hidden></div>
+      <section class="stats" id="stats"></section>
+
+      <section class="admin-section settings-section">
+        <header><div><p class="section-id">01 / SYNC</p><h2>自动同步设置</h2></div><span id="nextSync"></span></header>
+        <form id="settingsForm" class="settings-form"><label class="switch-row"><span><b>启用自动同步</b><small>关闭后仍可手动同步</small></span><input id="autoSyncEnabled" type="checkbox"><i></i></label><label><span>同步间隔</span><div class="number-field"><input id="syncHours" type="number" min="1" max="168" step="0.5"><b>小时</b></div><small>允许范围 1–168 小时</small></label><button type="submit">保存设置</button></form>
+      </section>
+
+      <section class="admin-section players-section">
+        <header><div><p class="section-id">02 / PLAYERS</p><h2>选手数据库</h2></div><div class="player-actions"><label class="search-box">⌕<input id="adminSearch" placeholder="搜索 ID、队伍或国家"></label><button class="primary" id="addPlayer">添加选手</button></div></header>
+        <div class="table-scroll"><table><thead><tr><th>选手 ID</th><th>队伍</th><th>国家 / 赛区</th><th>年龄</th><th>位置</th><th>Major</th><th>状态</th><th>操作</th></tr></thead><tbody id="adminPlayerBody"></tbody></table></div>
+        <footer><span id="playerSummary"></span><div id="adminPagination"></div></footer>
+      </section>
+    </section>
+  </main>
+
+  <div class="modal-wrap" id="playerModal" hidden><section class="editor-modal"><header><div><p class="eyebrow">PLAYER RECORD</p><h2 id="editorTitle">添加选手</h2></div><button id="closeEditor">×</button></header><form id="playerForm"><input type="hidden" id="originalId"><div class="field-grid"><label>选手 ID<input id="editId" required maxlength="40"></label><label>队伍<input id="editTeam" required maxlength="80"></label><label>国家或地区<input id="editCountry" required maxlength="30"></label><label>赛区<select id="editRegion"><option>欧洲</option><option>独联体</option><option>亚太</option><option>大洋洲</option><option>北美洲</option><option>南美洲</option><option>非洲和以色列</option></select></label><label>年龄<input id="editAge" type="number" min="14" max="80" required></label><label>位置<select id="editRole"><option>步枪手</option><option>狙击手</option><option>指挥</option><option>自由人</option></select></label><label>Major 冠军数<input id="editWins" type="number" min="0" max="100" required></label><label>Major 参赛数<input id="editApps" type="number" min="0" max="100" required></label><label>状态<select id="editStatus"><option>现役</option><option>退役</option></select></label></div><div class="editor-actions"><button type="button" id="cancelEditor">取消</button><button type="submit" class="primary">保存选手</button></div></form></section></div>
+  <div class="toast" id="adminToast"></div>
+  <footer class="site-footer"><div class="site-footer-links"><a class="site-promo" href="#" target="_blank" rel="noopener noreferrer"><strong>PRBET</strong><span>CS2 / 无畏契约赛事竞猜</span></a><a class="author-link" href="#">PR弗一把</a></div></footer>
+  <script src="js/admin.js"></script>
+</body>
+</html>
+
+
+

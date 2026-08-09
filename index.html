@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" sizes="32x32" href="/prbetlogo_square.png">
+  <link rel="apple-touch-icon" href="/prbetlogo_square.png">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="CS2 弗一把猜选手辅助工具">
+  <title>PR弗一把 · CS2 推理工具</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/hltv-overrides.css">
+</head>
+<body>
+  <header class="topbar app-header">
+    <a class="brand app-brand" href="/play"><picture class="brand-art"><source media="(max-width:600px)" srcset="/prbetlogo_square.png"><img src="/prbetlogo.png" alt="PRBET"></picture><span><strong>PR弗一把</strong><small>CS2 猜选手助手</small></span></a>
+    <nav class="primary-nav"><a href="/play">游戏大厅</a><a href="/">选择游戏</a><a href="/arknights">方舟弗一把</a></nav>
+    <div class="header-actions"><button class="link-btn" data-modal="rulesModal">规则</button><button class="link-btn" data-modal="dataModal">数据</button></div>
+  </header>
+
+  <main class="shell">
+    <section class="hero">
+      <div><p class="eyebrow"><i></i> CS2 PLAYER SOLVER</p><h1>把每次反馈，变成<br><em>更聪明的下一猜。</em></h1><p class="hero-copy">录入游戏显示的颜色和箭头，自动排除不可能的选手，并用信息量推荐下一位。</p></div>
+      <div class="hero-progress"><p>本轮进度<strong><b id="heroGuesses">0</b> / 8</strong></p></div>
+    </section>
+
+    <section class="site-bridge" aria-label="PR生态入口">
+      <a class="site-bridge-card site-bridge-primary" href="#" target="_blank" rel="noopener noreferrer"><span>PRBET · CS2 / 无畏契约</span><strong>赛事竞猜，前往 PRBET <b>↗</b></strong><small>关注 CS2 与无畏契约赛事动态和竞猜内容（虚拟积分）</small></a>
+    </section>
+
+    <section class="online-play-warning" role="note" aria-label="联机游玩提示">
+      <span class="online-play-warning-mark" aria-hidden="true">!</span>
+      <div>
+        <strong>我们不推荐在联机游玩时滥用此工具</strong>
+        <p>请仅将推理结果用于单人练习、对局复盘或验证自己的推理过程，尊重其他玩家的正常游戏体验。</p>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <div class="main-column">
+        <article class="panel guess-panel">
+          <header class="panel-head"><div><small>01</small><h2>录入猜测</h2></div><div class="round-dots" id="roundDots"></div></header>
+          <form class="guess-form" id="guessForm">
+            <div class="source-toggle"><input type="radio" name="source" id="sourceMe" value="me" checked><label for="sourceMe">我的猜测</label><input type="radio" name="source" id="sourceOpponent" value="opponent"><label for="sourceOpponent">对手公开</label></div>
+            <div class="search-wrap"><span>⌕</span><input id="playerSearch" placeholder="输入选手 ID，例如 ZywOo" autocomplete="off"><div class="search-results" id="searchResults"></div></div>
+            <button class="primary-btn" type="submit">添加反馈 <b>→</b></button>
+          </form>
+          <div class="empty" id="guessEmpty"><div class="crosshair"></div><strong>等待第一条线索</strong><p>添加选手后，点击每个字段设置游戏显示的反馈。</p></div>
+          <div class="guess-list" id="guessList"></div>
+        </article>
+
+        <article class="panel candidate-panel">
+          <header class="panel-head candidate-head"><div><small>02</small><h2>剩余候选</h2></div><div class="table-tools"><label class="candidate-quick-search">⌕ <input id="candidateSearch" placeholder="搜索昵称 / 任意属性"></label><input id="candidateSort" type="hidden" value="recommend"><div class="sort-switch" role="group" aria-label="候选排序"><button class="active" type="button" data-candidate-sort="recommend">推荐</button><button type="button" data-candidate-sort="name">昵称</button><button type="button" data-candidate-sort="age">年龄</button></div></div></header>
+          <div class="candidate-filters" aria-label="候选选手筛选">
+            <div class="candidate-filter-bar"><div><strong>属性筛选</strong><span>可直接输入关键词，也可以展开选择</span></div><button class="clear-filters" id="clearCandidateFilters" type="button">重置筛选</button></div>
+            <div class="candidate-filter-grid">
+              <label class="filter-field filter-span-4"><span>赛区</span><span class="filter-combobox"><input id="filterRegion" placeholder="全部赛区" autocomplete="off" aria-autocomplete="list"><button class="filter-toggle" type="button" aria-label="展开赛区"></button><span class="filter-options" role="listbox"></span></span></label>
+              <label class="filter-field filter-span-4"><span>战队</span><span class="filter-combobox"><input id="filterTeam" placeholder="全部战队" autocomplete="off" aria-autocomplete="list"><button class="filter-toggle" type="button" aria-label="展开战队"></button><span class="filter-options" role="listbox"></span></span></label>
+              <label class="filter-field filter-span-4"><span>国家 / 地区</span><span class="filter-combobox"><input id="filterCountry" placeholder="全部国家 / 地区" autocomplete="off" aria-autocomplete="list"><button class="filter-toggle" type="button" aria-label="展开国家或地区"></button><span class="filter-options" role="listbox"></span></span></label>
+              <label class="filter-field filter-span-4"><span>位置</span><span class="filter-combobox"><input id="filterRole" placeholder="全部位置" autocomplete="off" aria-autocomplete="list"><button class="filter-toggle" type="button" aria-label="展开位置"></button><span class="filter-options" role="listbox"></span></span></label>
+              <label class="filter-field filter-span-4 filter-tablet-wide"><span>状态</span><span class="filter-combobox"><input id="filterStatus" placeholder="全部状态" autocomplete="off" aria-autocomplete="list"><button class="filter-toggle" type="button" aria-label="展开状态"></button><span class="filter-options" role="listbox"></span></span></label>
+              <label class="filter-field filter-range filter-span-4"><span>年龄范围</span><span class="range-inputs"><input id="filterAgeMin" type="number" min="14" max="80" placeholder="最低" inputmode="numeric"><i>–</i><input id="filterAgeMax" type="number" min="14" max="80" placeholder="最高" inputmode="numeric"></span></label>
+              <label class="filter-field filter-range filter-span-6"><span>Major 冠军范围</span><span class="range-inputs"><input id="filterMajorWinsMin" type="number" min="0" max="10" placeholder="最低" inputmode="numeric"><i>–</i><input id="filterMajorWinsMax" type="number" min="0" max="10" placeholder="最高" inputmode="numeric"></span></label>
+              <label class="filter-field filter-range filter-span-6"><span>Major 参赛范围</span><span class="range-inputs"><input id="filterMajorAppsMin" type="number" min="0" max="30" placeholder="最低" inputmode="numeric"><i>–</i><input id="filterMajorAppsMax" type="number" min="0" max="30" placeholder="最高" inputmode="numeric"></span></label>
+            </div>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>选手</th><th>队伍</th><th>国家 / 赛区</th><th>年龄</th><th>位置</th><th>Major</th><th>状态</th><th></th></tr></thead><tbody id="candidateBody"></tbody></table><div class="no-results" id="noCandidates" hidden><strong>没有选手同时满足这些反馈</strong><p>检查是否点错颜色或箭头，也可能是内置资料需要更新。</p></div></div>
+          <footer class="table-footer"><span id="candidateSummary"></span><div id="pagination"></div></footer>
+        </article>
+      </div>
+
+      <aside>
+        <article class="panel rec-panel"><header><i></i> NEXT BEST GUESS</header><div id="recommendation"></div></article>
+        <article class="panel legend-panel"><div class="panel-head compact"><div><small>03</small><h2>反馈图例</h2></div></div><div class="legend"><div><i class="green"></i><p><b>绿色 · 完全正确</b><span>字段与答案一致</span></p></div><div><i class="yellow"></i><p><b>黄色 · 接近答案</b><span>同赛区或数值接近</span></p></div><div><i class="gray"></i><p><b>灰色 · 不匹配</b><span>字段不同或差距较大</span></p></div><div><i class="arrow">↑</i><p><b>箭头 · 答案方向</b><span>↑ 更大，↓ 更小</span></p></div></div><button class="secondary-btn" id="loadDemo">载入演示线索</button></article>
+        <article class="panel session-panel"><div><span>当前对局</span><strong id="sessionStatus">等待开始</strong></div><p><button id="undoBtn" disabled>撤销</button><button id="resetBtn" disabled>重置</button></p></article>
+      </aside>
+    </section>
+  </main>
+
+  <div class="toast" id="toast"></div>
+  <footer class="site-footer"><span>PR弗一把</span></footer>
+  <div class="modal-wrap" id="rulesModal" hidden><section class="modal"><button class="modal-close">×</button><p class="eyebrow"><i></i> HOW TO PLAY</p><h2>反馈判断规则</h2><div class="rules"><div><b>昵称 / 队伍 / 位置 / 状态</b><p>仅判断完全正确。绿色为相同，灰色为不同。</p></div><div><b>国家或地区</b><p>绿色为同国家；黄色为国家不同但同赛区；灰色为不同赛区。</p></div><div><b>年龄</b><p>相同为绿色；相差 3 岁以内为黄色；其余为灰色。箭头指向答案。</p></div><div><b>Major 数据</b><p>相同为绿色；相差 1 次以内为黄色；其余为灰色。箭头指向答案。</p></div></div><p class="note">对手公开的猜测不会占用你的 8 次机会，但同样参与筛选。</p></section></div>
+  <div class="modal-wrap" id="dataModal" hidden><section class="modal"><button class="modal-close">×</button><p class="eyebrow"><i></i> PLAYER DATABASE</p><h2>选手资料库</h2><p class="modal-copy">当前内置 <b id="dataCount">0</b> 位选手。游戏资料会随转会与 Major 更新，可以导出 JSON 修改后再导入。</p><div class="data-actions"><button class="secondary-btn" id="exportData">导出 JSON</button><label class="primary-btn file-btn">导入 JSON<input id="importData" type="file" accept="application/json"></label><button class="link-btn" id="restoreData">恢复内置</button></div><p class="note">字段：id、team、country、region、age、role、majorWins、majorApps、status。导入数据仅保存在本浏览器。</p></section></div>
+
+  <script src="js/players.js"></script><script src="js/engine.js"></script><script src="js/flags.js"></script><script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+.home-page,.home-page button,.home-page input{font-family:"Segoe UI Variable Text","Noto Sans SC","Microsoft YaHei UI","PingFang SC",sans-serif!important;letter-spacing:0}
+.home-page main{min-height:calc(100vh - 150px);padding-top:52px}
+.home-hero{max-width:720px;margin:0 0 30px}
+.home-hero .kicker{margin-bottom:12px}
+.home-hero h1{margin:0;font-size:clamp(36px,4.2vw,56px);line-height:1.08;letter-spacing:0}
+.home-hero>p:last-child{margin:14px 0 0;color:var(--muted);font-size:14px;line-height:1.6}
+.home-selector{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.home-game-card{min-height:250px;padding:25px;display:flex;flex-direction:column;border:1px solid var(--line);color:var(--text);text-decoration:none;background:#111c27;transition:transform .18s,border-color .18s,background .18s}
+.home-game-card:hover{transform:translateY(-2px);border-color:#6f8da6;background:#142231}
+.home-game-card-cs2{border-top:3px solid #87bce8}.home-game-card-ak{border-top:3px solid #c8f33e}
+.home-card-top{display:flex;justify-content:space-between;gap:15px;color:var(--muted);font-size:10px;font-weight:800}
+.home-card-top b,.home-card-action b{font-family:"Bahnschrift","Segoe UI",sans-serif;font-variant-numeric:tabular-nums;letter-spacing:0}
+.home-game-card-cs2 .home-card-top b,.home-game-card-cs2 .home-card-action{color:#a8d2f2}.home-game-card-ak .home-card-top b,.home-game-card-ak .home-card-action{color:#d8ff72}
+.home-game-card h2{margin:46px 0 8px;font-size:28px;letter-spacing:0}.home-game-card p{margin:0;color:var(--muted);font-size:13px}.home-card-action{margin-top:auto;padding-top:28px;font-size:13px;font-weight:750}.home-card-action b{margin-left:8px;font-size:18px}
+.home-header-link{padding:8px 10px;border:1px solid var(--line);color:var(--muted);font-size:11px;text-decoration:none}.home-header-link:hover{color:#a8d2f2;border-color:#6f8da6}
+.home-footer{display:flex;justify-content:space-between;gap:12px}.home-footer a{color:var(--muted);text-decoration:none}.home-footer a:hover{color:#a8d2f2}
+@media(max-width:700px){.home-page .app-header{height:64px!important;min-height:64px!important;padding:8px 12px!important;display:flex!important;justify-content:space-between;gap:8px!important}.home-page .app-header .header-actions{display:none}.home-page main{padding-top:30px}.home-hero{margin-bottom:22px}.home-hero h1{font-size:36px}.home-hero>p:last-child{font-size:12px}.home-selector{grid-template-columns:1fr}.home-game-card{min-height:190px;padding:20px}.home-game-card h2{margin-top:30px;font-size:24px}.home-footer{flex-direction:column}}

@@ -1,0 +1,157 @@
+.arknights-game-page,
+.arknights-game-page button,
+.arknights-game-page input,
+.arknights-game-page select,
+.arknights-game-page textarea{
+  font-family:"Segoe UI Variable Text","Noto Sans SC","Source Han Sans SC","Microsoft YaHei UI","PingFang SC",sans-serif!important;
+  letter-spacing:0;
+}
+.arknights-game-page .compact-game-hero{margin:4px 0 28px!important}
+.arknights-game-page .compact-game-hero .hero-copy{max-width:680px}
+.arknights-game-page .compact-game-hero h1{font-size:clamp(38px,4.3vw,56px)!important;line-height:1.06!important;letter-spacing:0!important}
+.arknights-game-page .compact-game-hero .hero-copy>p:last-of-type{margin-top:14px;font-size:14px!important;line-height:1.6!important}
+.arknights-game-page .home-hero-actions{margin-top:18px}
+.arknights-game-page .home-mode-card{min-height:216px;padding:20px}
+.arknights-game-page .home-mode-card h3{margin:17px 0 7px;font-size:22px;letter-spacing:0}
+.arknights-game-page .home-mode-card p{font-size:13px;line-height:1.55}
+.arknights-game-page .home-mode-head{margin-bottom:16px}
+.arknights-game-page .home-mode-head h2{font-size:24px}
+.arknights-game-page .compact-rules-strip{margin-top:14px}
+.arknights-game-page .compact-rules-dialog{width:min(640px,calc(100% - 24px))}
+.arknights-game-page .compact-rules-dialog .rules-content{grid-template-columns:1fr}
+
+.arknights-game-page .room-code strong,
+.arknights-game-page .created-room-code,
+.arknights-game-page .invite-room-code strong,
+.arknights-game-page .match-clock,
+.arknights-game-page .score-value,
+.arknights-game-page .single-progress strong,
+.arknights-game-page .single-progress span,
+.arknights-game-page .match-format-lock strong,
+.arknights-game-page .home-mode-card>b,
+.arknights-game-page .code-input,
+.arknights-game-page .answer-player-badge{
+  font-family:"Bahnschrift","DIN Alternate","Segoe UI Variable Display","Segoe UI",sans-serif!important;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:0!important;
+}
+
+.arknights-game-page .suggestions button{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 16px;align-items:center}
+.arknights-game-page .suggestions button b{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.arknights-game-page .suggestions button small{grid-column:1;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.arknights-game-page .suggestions button>span{grid-row:1/3;grid-column:2;color:#a8d2f2;font-family:"Bahnschrift","Segoe UI",sans-serif;font-size:13px}
+
+.arknights-game-page .arknights-board{overflow:hidden!important}
+.arknights-game-page .ak-game-table-scroll{width:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;overscroll-behavior-x:contain}
+.arknights-game-page .arknights-game-table{width:100%;min-width:1120px!important;table-layout:fixed}
+.arknights-game-page .arknights-game-table .ak-col-name{width:15%}
+.arknights-game-page .arknights-game-table .ak-col-rarity{width:7%}
+.arknights-game-page .arknights-game-table .ak-col-class{width:7%}
+.arknights-game-page .arknights-game-table .ak-col-subclass{width:10%}
+.arknights-game-page .arknights-game-table .ak-col-faction{width:12%}
+.arknights-game-page .arknights-game-table .ak-col-year{width:7%}
+.arknights-game-page .arknights-game-table .ak-col-tags{width:20%}
+.arknights-game-page .arknights-game-table .ak-col-position{width:9%}
+.arknights-game-page .arknights-game-table .ak-col-alter{width:13%}
+.arknights-game-page .arknights-game-table th{height:30px;padding:5px 6px!important;font-size:10px!important;white-space:nowrap}
+.arknights-game-page .arknights-game-table td,
+.arknights-game-page .multiplayer-boards .arknights-game-table td{height:58px!important;min-height:58px!important;padding:6px 7px!important;font-size:12px!important;line-height:1.25!important;vertical-align:middle;overflow:hidden}
+.arknights-game-page .arknights-game-table td:first-child,
+.arknights-game-page .multiplayer-boards .arknights-game-table td:first-child{padding-left:9px!important;font-size:13px!important;text-align:left}
+.arknights-game-page .arknights-game-table td .cell-value{display:-webkit-box!important;max-height:2.5em;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow-wrap:anywhere}
+.arknights-game-page .arknights-game-table td:first-child .cell-value{display:block!important}
+.arknights-game-page .arknights-game-table td strong,
+.arknights-game-page .arknights-game-table td small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.arknights-game-page .arknights-game-table td small{margin-top:3px;opacity:.76;font-size:10px}
+.arknights-game-page .arknights-game-table td .direction{display:inline!important;margin:0 0 0 4px!important;font-family:"Bahnschrift","Segoe UI",sans-serif!important;font-size:14px!important}
+.arknights-game-page .ak-cell-tags{font-size:11px}
+.arknights-game-page .answer-operator .answer-player-facts strong{font-size:13px;line-height:1.35}
+.arknights-game-page .answer-operator .answer-player-badge{width:54px;font-size:15px}
+.arknights-game-page .single-head-tools>.room-code{display:none}
+.arknights-game-page .multiplayer-scoreboard .score-player{min-width:0}
+.arknights-game-page .score-player>div:not(.score-player-actions){min-width:0}
+.arknights-game-page .score-player strong,
+.arknights-game-page .score-player small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Keep game feedback readable without making every value a headline. */
+.arknights-game-page .arknights-board .board-label b{font-weight:650!important}
+.arknights-game-page .arknights-board .board-label span{font-weight:500}
+.arknights-game-page .arknights-game-table th{font-weight:600!important}
+.arknights-game-page .arknights-game-table td{font-weight:500!important}
+.arknights-game-page .arknights-game-table td strong{font-weight:650!important}
+.arknights-game-page .arknights-game-table td small{font-weight:400!important}
+.arknights-game-page .arknights-game-table td .direction{font-weight:700!important}
+.arknights-game-page.game-mode-active .mode-shell{overflow:visible}
+.arknights-game-page .guess-composer{position:relative;z-index:20}
+.arknights-game-page .suggestions{z-index:30}
+
+@media(min-width:1100px){
+  .arknights-game-page .arena .multiplayer-boards{width:100%;margin-left:0;transform:none}
+  .arknights-game-page .arena .multiplayer-boards .arknights-game-table{min-width:0!important;table-layout:fixed}
+  .arknights-game-page .arena .multiplayer-boards.player-count-2,
+  .arknights-game-page .arena .multiplayer-boards.player-count-3,
+  .arknights-game-page .arena .multiplayer-boards.player-count-4{grid-template-columns:1fr}
+}
+@media(min-width:761px){
+  /* Nine compact columns fit the desktop board; horizontal scrolling is reserved for touch layouts. */
+  .arknights-game-page .suggestions{max-height:min(320px,calc(100vh - 160px))}
+  .arknights-game-page .ak-game-table-scroll{overflow-x:hidden}
+  .arknights-game-page .arknights-game-table,
+  .arknights-game-page .arena .multiplayer-boards .arknights-game-table{width:100%;min-width:0!important;max-width:100%;table-layout:fixed}
+  .arknights-game-page .arknights-game-table th{height:32px;padding:6px!important;overflow:hidden;text-overflow:ellipsis;font-size:11px!important}
+  .arknights-game-page .arknights-game-table td,
+  .arknights-game-page .multiplayer-boards .arknights-game-table td{height:64px!important;min-height:64px!important;font-size:14px!important;line-height:1.35!important}
+  .arknights-game-page .arknights-game-table td:first-child,
+  .arknights-game-page .multiplayer-boards .arknights-game-table td:first-child{font-size:15px!important}
+  .arknights-game-page .arknights-game-table td small{font-size:11px!important}
+  .arknights-game-page .arknights-game-table .ak-cell-tags{font-size:13px}
+  .arknights-game-page .arknights-game-table td .direction{font-size:15px!important}
+}
+@media(max-width:800px){
+  .arknights-game-page .compact-game-hero{margin-bottom:20px!important}
+  .arknights-game-page .home-mode-card{min-height:154px;padding:17px}
+  .arknights-game-page .home-mode-card h3{margin-top:12px;font-size:20px}
+}
+@media(max-width:760px){
+  .arknights-game-page main{width:calc(100% - 14px)}
+  .arknights-game-page .compact-game-hero h1{font-size:34px!important}
+  .arknights-game-page .compact-game-hero .hero-copy>p:last-of-type{font-size:12px!important}
+  .arknights-game-page .mode-view,.arknights-game-page .arena{padding:12px 8px!important}
+  .arknights-game-page .ak-game-table-scroll{max-height:330px;overflow:auto}
+  .arknights-game-page .arknights-game-table{display:table!important;width:1020px!important;min-width:1020px!important;table-layout:fixed!important;padding:5px!important}
+  .arknights-game-page .arknights-game-table thead{display:table-header-group!important}
+  .arknights-game-page .arknights-game-table tbody{display:table-row-group!important}
+  .arknights-game-page .arknights-game-table tr{display:table-row!important;padding:0!important;border:0!important;background:transparent!important}
+  .arknights-game-page .arknights-game-table th{display:table-cell!important;position:sticky;z-index:2;top:0;height:27px;padding:4px!important;background:#0c1720;font-size:9px!important}
+  .arknights-game-page .arknights-game-table td,
+  .arknights-game-page .multiplayer-boards .arknights-game-table td{display:table-cell!important;width:auto!important;height:52px!important;min-height:52px!important;padding:4px 5px!important;font-size:10px!important;white-space:normal!important}
+  .arknights-game-page .arknights-game-table td::before{content:none!important;display:none!important}
+  .arknights-game-page .arknights-game-table td:first-child,
+  .arknights-game-page .arknights-game-table td:last-child{grid-column:auto!important}
+  .arknights-game-page .arknights-game-table td:first-child,
+  .arknights-game-page .multiplayer-boards .arknights-game-table td:first-child{min-height:52px!important;padding:4px 6px!important;font-size:11px!important;text-align:left!important}
+  .arknights-game-page .arknights-game-table td .cell-value{max-height:2.4em!important;font-size:inherit!important}
+  .arknights-game-page .arknights-game-table td small{font-size:8px}
+  .arknights-game-page .arknights-game-table td .direction{font-size:12px!important}
+  .arknights-game-page .guess-composer{grid-template-columns:minmax(0,1fr) auto!important}
+  .arknights-game-page .guess-composer input{font-size:13px!important}
+  .arknights-game-page .guess-composer .cta{min-width:82px;font-size:12px!important}
+  .arknights-game-page .compact-rules-strip>div{flex:1 1 42%}
+}
+@media(max-width:420px){
+  .arknights-game-page .app-brand b{font-size:13px}
+  .arknights-game-page .app-header .primary-nav{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));overflow:hidden}
+  .arknights-game-page .app-header .primary-nav a{width:auto;min-width:0;padding:0 2px!important;font-size:11px!important;white-space:nowrap}
+  .arknights-game-page .app-header .server-pill{width:32px;min-width:32px;padding:0;justify-content:center}
+  .arknights-game-page .app-header .server-pill span{display:none}
+  .arknights-game-page .arena-head{gap:16px}
+  .arknights-game-page .single-head-tools{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+  .arknights-game-page .single-progress{min-width:0!important;padding:9px 10px!important}
+  .arknights-game-page .single-progress-info{min-width:0!important}
+  .arknights-game-page .single-progress-info strong{font-size:15px!important;white-space:nowrap}
+  .arknights-game-page .single-progress-info span{font-size:10px!important}
+  .arknights-game-page .single-head-tools .quit-action{min-width:112px;padding:0 10px;font-size:12px!important}
+  .arknights-game-page .home-mode-head h2{font-size:21px}
+  .arknights-game-page .home-mode-card{min-height:146px}
+  .arknights-game-page .compact-rules-strip{gap:10px}
+}

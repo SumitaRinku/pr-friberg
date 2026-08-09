@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" sizes="32x32" href="/prbetlogo_square.png">
+  <link rel="apple-touch-icon" href="/prbetlogo_square.png">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="方舟弗一把在线猜干员游戏，支持单人、随机匹配与私人房间">
+  <title>方舟弗一把 · 猜干员</title>
+  <link rel="stylesheet" href="/css/game.css">
+  <link rel="stylesheet" href="/css/hltv-overrides.css">
+  <link rel="stylesheet" href="/css/arknights-game.css">
+</head>
+<body class="game-page arknights-game-page">
+  <div class="grain" aria-hidden="true"></div><div class="glow glow-a" aria-hidden="true"></div><div class="glow glow-b" aria-hidden="true"></div>
+  <header class="site-header app-header">
+    <a class="logo app-brand" href="/arknights"><picture class="brand-art"><source media="(max-width:600px)" srcset="/prbetlogo_square.png"><img src="/prbetlogo.png" alt="PRBET"></picture><span><b>方舟弗一把</b><small>ARKNIGHTS OPERATOR GAME</small></span></a>
+    <nav class="primary-nav">
+      <a href="/">选择游戏</a>
+      <a href="/arknights-tool">干员工具 <span>↗</span></a>
+      <a href="/play">CS2 弗一把</a>
+    </nav>
+    <div class="header-actions"><div class="server-pill"><i></i><span id="serverText">连接中</span></div></div>
+  </header>
+
+  <main>
+    <section class="hero compact-game-hero" id="homeHero">
+      <div class="hero-copy">
+        <p class="kicker"><span></span> WHO IS THE OPERATOR?</p>
+        <h1>方舟<em>弗一把</em></h1>
+        <p>十次机会，根据九项属性反馈锁定目标干员。</p>
+        <div class="home-hero-actions"><button class="secondary-cta" id="openRules" type="button">查看规则</button></div>
+      </div>
+    </section>
+
+    <section class="mode-shell">
+      <section class="mode-view active home-view" id="view-home">
+        <div class="home-mode-head"><div><p class="step-label">CHOOSE A MODE</p><h2>选择游戏模式</h2></div></div>
+        <div class="home-mode-grid">
+          <article class="home-mode-card"><b>01</b><h3>单人挑战</h3><p>十次猜测，随时可查看答案。</p><button class="cta" type="button" data-view="single">开始挑战 <span>→</span></button></article>
+          <article class="home-mode-card"><b>02</b><h3>随机匹配</h3><p>匹配一名对手进行 BO3。</p><button class="cta" type="button" data-view="match">寻找对手 <span>→</span></button></article>
+          <article class="home-mode-card"><b>03</b><h3>自建房间</h3><p>邀请 2-4 人并自定义规则。</p><button class="cta" type="button" data-view="room">创建或加入 <span>→</span></button></article>
+        </div>
+      </section>
+
+      <section class="mode-view" id="view-single">
+        <button class="mode-back" type="button">← 返回游戏主页</button>
+        <div class="setup-grid" id="singleSetup">
+          <div><p class="step-label">SOLO CHALLENGE</p><h2>单人挑战</h2><p>系统随机选择一位干员，最多猜 10 次。</p></div>
+          <form id="singleStartForm" class="setup-form"><label>你的昵称<input id="singleName" maxlength="18" placeholder="输入显示昵称"></label><label class="question-setting">题库<select id="singleQuestionMode"><option value="full">完整题库 · 全部干员</option><option value="simple">标准题库 · 3★ 以上</option><option value="beginner">新手题库 · 5★ / 6★</option></select></label><button class="cta" type="submit">开始游戏 <b>→</b></button></form>
+        </div>
+        <div id="singleGame" hidden></div>
+      </section>
+
+      <section class="mode-view" id="view-match">
+        <button class="mode-back" type="button">← 返回游戏主页</button>
+        <div class="match-center">
+          <div class="versus-visual"><div class="player-orb">YOU</div><span><i></i>VS<i></i></span><div class="player-orb ghost">?</div></div>
+          <p class="step-label">QUICK MATCH</p><h2>随机寻找一名对手</h2><p>双方猜同一位干员，固定 BO3。</p>
+          <label class="name-field">你的昵称<input id="matchName" maxlength="18" placeholder="输入显示昵称"></label>
+          <div class="match-format-lock"><span>比赛赛制</span><strong>BO3</strong></div><label class="match-setting">题库<select id="matchQuestionMode"><option value="full">完整题库 · 全部干员</option><option value="simple">标准题库 · 3★ 以上</option><option value="beginner">新手题库 · 5★ / 6★</option></select></label>
+          <button class="cta wide" id="matchButton">开始匹配 <b>⌁</b></button>
+          <button class="quiet-button" id="cancelMatch" hidden>取消匹配</button>
+          <div class="match-status" id="matchStatus" hidden><i></i><span>正在搜索对手</span></div>
+        </div>
+      </section>
+
+      <section class="mode-view" id="view-room">
+        <button class="mode-back" type="button">← 返回游戏主页</button>
+        <div class="room-options">
+          <article class="room-option-enter room-option-host"><div class="room-option-heading"><div class="option-icon">＋</div><div><p class="step-label">HOST A ROOM</p><h2>创建私人房间</h2><p>设定规则并生成六位房间码。</p></div></div><label>你的昵称<input id="hostName" maxlength="18" placeholder="输入显示昵称"></label><div class="room-setting-grid"><label class="match-setting">房间人数<select id="roomMaxPlayers"><option value="2">最多 2 人</option><option value="3">最多 3 人</option><option value="4">最多 4 人</option></select></label><label class="match-setting">获胜分数<select id="roomScoreToWin"><option value="1">先得 1 分</option><option value="2">先得 2 分</option><option value="3" selected>先得 3 分</option><option value="4">先得 4 分</option><option value="5">先得 5 分</option><option value="6">先得 6 分</option><option value="7">先得 7 分</option><option value="8">先得 8 分</option><option value="9">先得 9 分</option></select></label><label class="match-setting round-duration-setting">每轮时间<div class="number-with-unit"><input id="roomRoundDuration" type="number" min="30" max="600" step="15" value="120" inputmode="numeric"><span>秒</span></div></label></div><div class="room-setting-row"><label class="match-setting">题库<select id="roomQuestionMode"><option value="full">完整题库 · 全部干员</option><option value="simple">标准题库 · 3★ 以上</option><option value="beginner">新手题库 · 5★ / 6★</option></select></label><label class="check-field"><input id="showOpponentGuesses" type="checkbox" checked><span><b>公开猜测</b><small>对局中显示其他玩家的猜测</small></span></label></div><button class="cta" id="createRoom">创建房间 <b>→</b></button></article>
+          <div class="or"><span>OR</span></div>
+          <article class="room-option-enter room-option-join"><div class="room-option-heading"><div class="option-icon">#</div><div><p class="step-label">JOIN A ROOM</p><h2>加入已有房间</h2><p>使用六位房间码参赛或观战。</p></div></div><label>你的昵称<input id="joinName" maxlength="18" placeholder="输入显示昵称"></label><label>房间码<input id="roomCodeInput" class="code-input" maxlength="6" inputmode="numeric" pattern="[0-9]{6}" placeholder="123456"></label><div class="room-join-actions"><button class="cta" id="joinRoom">加入房间 <b>→</b></button><button class="secondary-cta" id="watchRoom">仅观战</button></div></article>
+        </div>
+      </section>
+    </section>
+
+    <section class="arena" id="arena" hidden></section>
+
+    <section class="rules-strip compact-rules-strip">
+      <div><span class="color green"></span><p><b>完全匹配</b></p></div>
+      <div><span class="color yellow"></span><p><b>部分接近</b></p></div>
+      <div><span class="color gray"></span><p><b>不匹配</b></p></div>
+      <div><span class="arrow">↑</span><p><b>答案更高 / 更低</b></p></div>
+      <a class="tool-cta" href="/arknights-tool" target="_blank" rel="noopener">打开干员工具 <span>→</span></a>
+    </section>
+  </main>
+
+  <div class="game-result-overlay room-created-overlay" id="roomCreatedModal" hidden>
+    <section class="game-result-dialog room-created-dialog" role="dialog" aria-modal="true" aria-labelledby="roomCreatedTitle">
+      <p class="step-label">ROOM CREATED</p><h3 id="roomCreatedTitle">房间已创建</h3><p>将房间码发给朋友，进入大厅后准备开始。</p>
+      <button class="created-room-code" id="createdRoomCode" type="button" title="点击复制房间码"></button>
+      <div class="room-created-actions"><button class="secondary-cta" id="cancelCreatedRoom" type="button">取消并解散</button><button class="cta" id="enterCreatedRoom" type="button">进入房间 <b>→</b></button></div>
+    </section>
+  </div>
+  <div class="game-result-overlay room-invite-overlay" id="roomInviteModal" hidden>
+    <section class="game-result-dialog room-invite-dialog" role="dialog" aria-modal="true" aria-labelledby="roomInviteTitle">
+      <div class="invite-kind" id="roomInviteKind">PRIVATE ROOM INVITE</div><p class="step-label" id="roomInviteEyebrow">ROOM INVITATION</p><h3 id="roomInviteTitle">你收到一个房间邀请</h3><p id="roomInviteDescription">输入昵称后即可加入。</p>
+      <div class="invite-room-code"><span>房间码</span><strong id="roomInviteCode">000000</strong></div>
+      <label class="invite-name-field">你的昵称<input id="roomInviteName" maxlength="18" placeholder="输入显示昵称" autocomplete="nickname"></label>
+      <div class="dialog-actions"><button class="secondary-cta" id="cancelRoomInvite" type="button">返回主页</button><button class="cta" id="acceptRoomInvite" type="button">加入房间 <b>→</b></button></div>
+    </section>
+  </div>
+  <div class="game-result-overlay rules-modal-overlay" id="rulesModal" hidden>
+    <section class="game-result-dialog rules-dialog compact-rules-dialog" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
+      <button class="rules-close" id="closeRules" type="button" aria-label="关闭规则">×</button>
+      <p class="step-label">HOW TO PLAY</p><h2 id="rulesTitle">游戏规则</h2>
+      <div class="rules-content">
+        <section><h3>目标</h3><p>系统随机选择一位干员。每局最多猜 10 次，猜中干员立即获胜。</p></section>
+        <section><h3>接近判定</h3><p>相邻星级或年份、同职业不同子职业、同阵营组、任意相同词缀或部署位显示黄色。异格仅比较有或无：相同为绿色，不同为灰色。</p></section>
+        <section><h3>多人</h3><p>随机匹配为 BO3；私人房支持 2-4 人、准备、观战、房主控制、公开猜测、结算记录和再战。</p></section>
+      </div>
+      <div class="dialog-actions"><button class="cta" id="closeRulesAction" type="button">明白了</button></div>
+    </section>
+  </div>
+  <div class="toast" id="gameToast" role="status" aria-live="polite" aria-atomic="true"></div>
+  <footer class="site-footer"><span>PR弗一把</span></footer>
+  <script src="/js/arknights-game-config.js"></script>
+  <script src="/js/game.js"></script>
+</body>
+</html>
