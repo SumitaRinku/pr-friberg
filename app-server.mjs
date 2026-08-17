@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
-import { parseEnv, validPlayers, sanitizePlayers, createPlayersScript, contentType } from "./server.mjs";
+import { parseEnv, validPlayers, sanitizePlayers, createPlayersScript, createOperatorsScript, contentType, isPublicStaticPath, resolveClientIp } from "./server.mjs";
 import { buildDatabase, fetchActivePlayers } from "./scripts/sync-pandascore.mjs";
 import { GameManager } from "./game-engine.mjs";
 import { ArknightsGameManager } from "./arknights-game-engine.mjs";
@@ -76,7 +76,9 @@ export async function createAppServer(options = {}) {
   const cached = options.players ? null : await loadCache();
   const state = {
     players:cached?.players || builtIn, source:cached?(cached.source||"PandaScore cache"):"built-in",
-    updatedAt:cached?.updatedAt || null, syncing:false, lastAttemptAt:null, lastError:null
+    updatedAt:cached?.updatedAt || null, syncing:false, lastAttemptAt:null, lastError:null,
+    operators:options.arknightsOperators || ARKNIGHTS_OPERATORS,
+    operatorsUpdatedAt:null
   };
   const games = new GameManager(state.players, options.gameOptions);
   const arknightsGames = new ArknightsGameManager(ARKNIGHTS_OPERATORS, options.arknightsGameOptions);
@@ -105,7 +107,11 @@ export async function createAppServer(options = {}) {
     else if(urlPath==="/tool"||urlPath==="/tool/") relative="index.html";
     else if(urlPath==="/arknights"||urlPath==="/arknights/") relative="arknights.html";
     else if(urlPath==="/arknights-tool"||urlPath==="/arknights-tool/") relative="arknights-tool.html";
-    else relative=decodeURIComponent(urlPath).replace(/^[/\\]+/,"");
+    else {
+      try { relative = decodeURIComponent(urlPath).replace(/^[/\\]+/, ""); }
+      catch { throw Object.assign(new Error("路径编码错误"), { status:400 }); }
+    }
+    if (!isPublicStaticPath(relative)) throw Object.assign(new Error("Not found"), { status:404 });
     const filePath=path.resolve(ROOT,relative);
     if(filePath!==ROOT&&!filePath.startsWith(ROOT+path.sep)){response.writeHead(403);response.end("Forbidden");return;}
     let body=await fs.readFile(filePath);
@@ -118,8 +124,7 @@ export async function createAppServer(options = {}) {
     const started=Date.now();
     try{
       const url=new URL(request.url||"/","http://localhost");
-      const forwarded=String(request.headers["x-forwarded-for"]||"").split(",")[0].trim();
-      const ip=forwarded||request.socket.remoteAddress||"unknown";
+      const ip=resolveClientIp(request);
       const bucket=rate.get(ip)||{at:Date.now(),count:0};
       if(Date.now()-bucket.at>60_000){bucket.at=Date.now();bucket.count=0;} bucket.count++;rate.set(ip,bucket);
       if(bucket.count>300){json(response,429,{error:"请求过于频繁"},{"Retry-After":"60"});return;}
@@ -130,6 +135,7 @@ export async function createAppServer(options = {}) {
       if(pathname==="/api/status"&&method==="GET"){json(response,200,{source:state.source,players:state.players.length,updatedAt:state.updatedAt,syncing:state.syncing,lastAttemptAt:state.lastAttemptAt,lastError:state.lastError,configured:Boolean(apiKey),rooms:games.rooms.size,waiting:games.queue.length,arknightsRooms:arknightsGames.rooms.size,arknightsWaiting:arknightsGames.queue.length});return;}
       if(pathname==="/api/players"&&method==="GET"){json(response,200,{updatedAt:state.updatedAt,players:state.players});return;}
       if(pathname==="/js/players.js"&&method==="GET"){response.writeHead(200,{...secureHeaders("text/javascript; charset=utf-8"),"Cache-Control":"no-cache"});response.end(createPlayersScript(state.players,state.updatedAt));return;}
+      if(pathname==="/data/arknights-operators.js"&&method==="GET"){response.writeHead(200,{...secureHeaders("text/javascript; charset=utf-8"),"Cache-Control":"no-cache"});response.end(createOperatorsScript(state.operators,state.operatorsUpdatedAt));return;}
 
       if(pathname==="/api/game/single"&&method==="POST"){const body=await bodyJson(request);json(response,201,games.createSingle(body.playerName,body.questionMode));return;}
       let match=pathname.match(/^\/api\/game\/single\/([^/]+)$/);
@@ -165,7 +171,7 @@ export async function createAppServer(options = {}) {
       match=pathname.match(/^\/api\/rooms\/([^/]+)\/rematch$/);
       if(match&&method==="POST"){json(response,200,games.rematchRoom(match[1],accessToken));return;}
 
-      if(pathname==="/api/arknights/operators"&&method==="GET"){json(response,200,{operators:ARKNIGHTS_OPERATORS});return;}
+      if(pathname==="/api/arknights/operators"&&method==="GET"){json(response,200,{operators:state.operators});return;}
       if(pathname==="/api/arknights/game/single"&&method==="POST"){const body=await bodyJson(request);json(response,201,arknightsGames.createSingle(body.playerName,body.questionMode));return;}
       match=pathname.match(/^\/api\/arknights\/game\/single\/([^/]+)$/);
       if(match&&method==="GET"){json(response,200,arknightsGames.getSingle(match[1],accessToken));return;}
@@ -207,7 +213,9 @@ export async function createAppServer(options = {}) {
   });
 
   const cleanup=setInterval(()=>{games.cleanup();arknightsGames.cleanup();},60_000);cleanup.unref();
-  const syncTimer=setInterval(synchronize,syncInterval);syncTimer.unref();
+  // 嵌入场景（admin-server）通过 disableSyncTimer 由外部接管同步，
+  // 避免内部定时器用未应用管理员覆盖的数据覆盖 players.json。
+  if(!options.disableSyncTimer){const syncTimer=setInterval(synchronize,syncInterval);syncTimer.unref();}
   if(apiKey&&!options.disableInitialSync)setTimeout(synchronize,100).unref();
   return {server,state,games,arknightsGames,synchronize,close:()=>new Promise(resolve=>server.close(resolve))};
 }
