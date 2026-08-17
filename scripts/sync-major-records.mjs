@@ -129,7 +129,8 @@ async function fetchProfileBatch(titles, fetchImpl) {
   };
   for (const [key, value] of Object.entries(params)) url.searchParams.set(key, value);
   const response = await fetchImpl(url, {
-    headers:{ Accept:"application/json", "User-Agent":USER_AGENT, "Accept-Encoding":"gzip" }
+    headers:{ Accept:"application/json", "User-Agent":USER_AGENT, "Accept-Encoding":"gzip" },
+    signal:AbortSignal.timeout(30_000)
   });
   if (!response.ok) throw new Error("Liquipedia 选手资料请求失败：HTTP " + response.status + " " + (await response.text()).slice(0, 300));
   const payload = await response.json();
@@ -182,7 +183,8 @@ export async function fetchLiquipediaProfiles(records, fetchImpl = fetch, option
 
 export async function fetchLiquipediaWikitext(fetchImpl = fetch) {
   const response = await fetchImpl(PLAYER_DATABASE_API_URL, {
-    headers:{ Accept:"application/json", "User-Agent":USER_AGENT }
+    headers:{ Accept:"application/json", "User-Agent":USER_AGENT },
+    signal:AbortSignal.timeout(30_000)
   });
   if (!response.ok) throw new Error("Liquipedia Major 数据请求失败：HTTP " + response.status + " " + (await response.text()).slice(0, 300));
   const payload = await response.json();

@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createRequire } from 'node:module';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const require = createRequire(import.meta.url);
@@ -41,20 +41,22 @@ const attr = (tag, name) => {
   return htmlDecode(match?.[1] || '');
 };
 
-async function readOrFetch(file, url) {
-  try {
-    return await fs.readFile(file, 'utf8');
-  } catch (error) {
-    if (error.code !== 'ENOENT') throw error;
-    const response = await fetch(url, {
-      headers: { 'User-Agent': 'Friberg-Arknights-Data-Sync/2.0' },
-      signal: AbortSignal.timeout(30_000)
-    });
-    if (!response.ok) throw new Error(`PRTS request failed: HTTP ${response.status}`);
-    const html = await response.text();
-    await fs.writeFile(file, html, 'utf8');
-    return html;
+async function readOrFetch(file, url, force = false) {
+  if (!force) {
+    try {
+      return await fs.readFile(file, 'utf8');
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+    }
   }
+  const response = await fetch(url, {
+    headers: { 'User-Agent': 'Friberg-Arknights-Data-Sync/2.0' },
+    signal: AbortSignal.timeout(30_000)
+  });
+  if (!response.ok) throw new Error(`PRTS request failed: HTTP ${response.status}`);
+  const html = await response.text();
+  await fs.writeFile(file, html, 'utf8');
+  return html;
 }
 
 function slug(value) {
@@ -161,10 +163,12 @@ function applyAlterFlags(records) {
   for (const record of records) record.hasAlter = alterFamilyIds.has(record.id);
 }
 
-async function main() {
+// options.force = true 时忽略本地 HTML 缓存，强制从 PRTS 重新抓取并刷新缓存。
+export async function main(options = {}) {
+  const force = Boolean(options.force);
   const [mainHtml, releaseHtml] = await Promise.all([
-    readOrFetch(mainFile, MAIN_URL),
-    readOrFetch(releaseFile, RELEASE_URL)
+    readOrFetch(mainFile, MAIN_URL, force),
+    readOrFetch(releaseFile, RELEASE_URL, force)
   ]);
   const releases = parseReleaseTimeline(releaseHtml);
   const result = parseMainRoster(mainHtml, releases);
@@ -179,11 +183,21 @@ async function main() {
 
   result.sort((a, b) => a.name.localeCompare(b.name, 'zh-CN') || a.id.localeCompare(b.id));
   const out = `// Generated from the PRTS Wiki main roster and release timeline.\nconst ARKNIGHTS_OPERATORS = ${JSON.stringify(result, null, 2)};\n\nif (typeof globalThis !== "undefined") globalThis.ARKNIGHTS_OPERATORS = ARKNIGHTS_OPERATORS;\nif (typeof module !== "undefined") module.exports = ARKNIGHTS_OPERATORS;\n`;
-  await fs.writeFile(path.join(ROOT, 'data', 'arknights-operators.js'), out, 'utf8');
+  const operatorFile = path.join(ROOT, 'data', 'arknights-operators.js');
+  const temporary = `${operatorFile}.${process.pid}.tmp`;
+  await fs.writeFile(temporary, out, 'utf8');
+  try { await fs.rename(temporary, operatorFile); }
+  catch (error) {
+    if (error.code !== 'EEXIST' && error.code !== 'EPERM') throw error;
+    await fs.copyFile(temporary, operatorFile);
+    await fs.unlink(temporary);
+  }
   console.log(`[arknights] generated ${result.length} operators; ${Object.keys(ALTER_NAMES).length} alter relationships verified`);
 }
 
-main().catch(error => {
-  console.error('[arknights] ' + error.message);
-  process.exitCode = 1;
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch(error => {
+    console.error('[arknights] ' + error.message);
+    process.exitCode = 1;
+  });
+}

@@ -48,7 +48,7 @@ export function normalizePlayer(raw,previous=null,now=new Date()){
 
 async function apiGet(apiKey,pathname,params,fetchImpl){
   const url=new URL(pathname,API_ROOT);for(const[key,value]of Object.entries(params||{}))url.searchParams.set(key,String(value));
-  const response=await fetchImpl(url,{headers:{Accept:"application/json",Authorization:`Bearer ${apiKey}`}});
+  const response=await fetchImpl(url,{headers:{Accept:"application/json",Authorization:`Bearer ${apiKey}`},signal:AbortSignal.timeout(30_000)});
   if(!response.ok){const detail=(await response.text()).slice(0,300);throw new Error(`PandaScore 请求失败：HTTP ${response.status} ${detail}`);}
   const data=await response.json();if(!Array.isArray(data))throw new Error("PandaScore 返回格式异常");
   return{data,total:Number(response.headers.get("x-total"))||data.length};

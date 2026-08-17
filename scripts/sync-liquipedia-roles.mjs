@@ -68,7 +68,7 @@ async function fetchPages(titles, fetchImpl) {
     "User-Agent":"PRFragle/1.0 (github.com/SumitaRinku/pr-friberg; player data maintenance)",
     "Accept":"application/json",
     "Accept-Encoding":"gzip"
-  }});
+  },signal:AbortSignal.timeout(30_000)});
   if (!response.ok) throw new Error("Liquipedia 请求失败：HTTP " + response.status + " " + (await response.text()).slice(0, 200));
   const payload = await response.json();
   return payload.query && Array.isArray(payload.query.pages) ? payload.query.pages : [];
@@ -88,7 +88,7 @@ async function fetchHistoricalRole(title, year, fetchImpl, delayMs) {
   async function request(params) {
     const url=new URL(API_URL);
     for(const [key,value] of Object.entries(params))url.searchParams.set(key,value);
-    const response=await fetchImpl(url,{headers});
+    const response=await fetchImpl(url,{headers,signal:AbortSignal.timeout(30_000)});
     if(!response.ok)throw new Error("Liquipedia historical role request failed: HTTP "+response.status);
     return response.json();
   }
