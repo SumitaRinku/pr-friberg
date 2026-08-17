@@ -64,4 +64,4 @@ npm test
 
 ## License
 
-Private project.
+[AGPL-3.0-or-later](./LICENSE)。

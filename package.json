@@ -2,6 +2,7 @@
   "name": "cs2-fragle-solver",
   "version": "1.0.0",
   "private": true,
+  "license": "AGPL-3.0-or-later",
   "type": "commonjs",
   "scripts": {
     "test": "node tests/engine.test.js && node tests/sync.test.mjs && node tests/server.test.mjs && node tests/game.test.mjs && node tests/app-server.test.mjs && node tests/admin-server.test.mjs && node tests/arknights.test.mjs",
