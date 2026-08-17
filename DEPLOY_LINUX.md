@@ -9,7 +9,8 @@
 ```text
 Node.js v20.20.0
 npm 10.8.2
-运行账户 root
+部署账户 root（仅用于安装，服务以 friberg 系统账户运行）
+服务运行账户 friberg
 项目目录 /var/www/friberg
 域名 your-domain.example.com
 ```
@@ -75,7 +76,13 @@ scp .\friberg-release.zip root@服务器IP:/tmp/friberg-release.zip
 ssh root@服务器IP
 ```
 
-以下命令全部在 root shell 中执行，不使用 `sudo`，也不创建额外用户。
+以下安装命令在 root shell 中执行（需要写 /etc、/var/www 等系统目录）。服务本身以专用的 `friberg` 系统账户运行，不使用 root。
+
+创建服务运行账户（无登录 shell、无 home 内容）：
+
+```bash
+useradd --system --home-dir /var/www/friberg --shell /usr/sbin/nologin friberg
+```
 
 安装需要的系统组件。服务器已有 Node.js 和 npm，不需要重复安装：
 
@@ -102,7 +109,7 @@ ls -l /usr/bin/node
 ```bash
 mkdir -p /var/www/friberg
 unzip -o /tmp/friberg-release.zip -d /var/www/friberg
-chown -R root:root /var/www/friberg
+chown -R friberg:friberg /var/www/friberg
 chmod 0755 /var/www/friberg
 chmod 0750 /var/www/friberg/data
 ```
@@ -141,7 +148,7 @@ openssl rand -base64 32
 
 ```bash
 touch /var/www/friberg/.env
-chown root:root /var/www/friberg/.env
+chown friberg:friberg /var/www/friberg/.env
 chmod 0600 /var/www/friberg/.env
 nano /var/www/friberg/.env
 ```
@@ -165,8 +172,10 @@ stat -c '%U %G %a %n' /var/www/friberg/.env
 预期：
 
 ```text
-root root 600 /var/www/friberg/.env
+friberg friberg 600 /var/www/friberg/.env
 ```
+
+`.env` 必须归 `friberg` 所有：Node 进程在启动时会以服务账户身份读取它。
 
 ## 5. 测试和初次同步
 
@@ -188,7 +197,7 @@ Major 同步来自 Liquipedia，选手同步来自 PandaScore。如果 PandaScor
 
 ## 6. 安装 systemd 服务
 
-仓库已经提供与 `/var/www/friberg` 和 root 账户匹配的服务文件：
+仓库已经提供与 `/var/www/friberg` 和 `friberg` 账户匹配的服务文件（服务内已配置 `User=friberg`）：
 
 ```bash
 install -o root -g root -m 0644 /var/www/friberg/deploy/fragle.service /etc/systemd/system/fragle.service
@@ -246,8 +255,9 @@ server {
         access_log off;
     }
 
-    # PandaScore 手动同步可能需要数分钟。
-    location = /api/admin/sync {
+    # 手动数据同步（选手 / Major / 位置 / 干员）可能需要数分钟。
+    # 前缀匹配：同时覆盖旧的 /api/admin/sync 和新的 /api/admin/sync/<kind>。
+    location /api/admin/sync {
         limit_req zone=fragle_api burst=5 nodelay;
         proxy_pass http://127.0.0.1:3100;
         proxy_http_version 1.1;
@@ -406,7 +416,8 @@ scp .\friberg-update.zip root@服务器IP:/tmp/friberg-update.zip
 cp -a /var/www/friberg /var/www/friberg.backup
 systemctl stop fragle
 unzip -o /tmp/friberg-update.zip -d /var/www/friberg
-chown -R root:root /var/www/friberg
+chown -R friberg:friberg /var/www/friberg
+chmod 0750 /var/www/friberg/data
 cd /var/www/friberg
 /usr/bin/npm test
 systemctl start fragle
@@ -429,7 +440,7 @@ test -x "$NODE_BIN" || echo "Node 路径不可执行"
 sed -i "s|^ExecStart=.*|ExecStart=$NODE_BIN /var/www/friberg/admin-server.mjs|" /etc/systemd/system/fragle.service
 
 case "$NODE_BIN" in
-  /root/*) sed -i 's/^ProtectHome=.*/ProtectHome=false/' /etc/systemd/system/fragle.service ;;
+  /root/*) echo "Node 位于 /root 下，friberg 服务账户无法读取。请把 Node 安装到系统路径（如 /usr/bin/node）后重试。" ;;
 esac
 
 systemctl daemon-reload
@@ -437,6 +448,8 @@ systemctl reset-failed fragle
 systemctl restart fragle
 systemctl status fragle --no-pager
 ```
+
+服务以 `friberg` 账户运行，Node 必须安装在系统路径（如 `/usr/bin/node`）；位于 `/root/.nvm/` 等 root 专属目录下的 Node 对服务账户不可见，仅关闭 `ProtectHome` 也无法使用。
 
 本服务器的 3100 端口用于 PR弗一把；原有 PRBET 已占用 3000，不要停止或覆盖原服务。确认监听：
 
@@ -469,7 +482,7 @@ nginx -t
 ### 管理后台同步超时
 
 ```bash
-nginx -T | grep -A 14 'location = /api/admin/sync'
+nginx -T | grep -A 15 'location /api/admin/sync'
 journalctl -u fragle -f
 ```
 

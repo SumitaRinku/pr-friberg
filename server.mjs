@@ -49,6 +49,24 @@ export function sanitizePlayers(players) {
   })) : [];
 }
 
+// 解析真实客户端 IP，用于限流与登录防爆破的计数键。
+// 规则：
+// - 请求直接来自公网客户端（remoteAddress 非 loopback 且未设 TRUST_PROXY=1）时只信 socket 地址，
+//   任何 X-Forwarded-For / X-Real-IP 头都不可信（可伪造）。
+// - 请求来自本机反代（nginx -> admin-server -> app-server 链路均为 loopback）或显式配置
+//   TRUST_PROXY=1 时，优先取 X-Real-IP；XFF 取最后一段（由最近的可信代理追加，
+//   前面的段可被客户端伪造）。
+export function resolveClientIp(request) {
+  const remote = request.socket?.remoteAddress || "unknown";
+  const isLoopback = remote === "127.0.0.1" || remote === "::1" || remote === "::ffff:127.0.0.1";
+  if (process.env.TRUST_PROXY !== "1" && !isLoopback) return remote;
+  const real = String(request.headers["x-real-ip"] || "").trim();
+  if (real) return real;
+  const forwarded = String(request.headers["x-forwarded-for"] || "").trim();
+  const last = forwarded ? forwarded.split(",").pop().trim() : "";
+  return last || remote;
+}
+
 export function validPlayers(players) {
   const fields = ["id","team","country","region","age","role","majorWins","majorApps","status"];
   return Array.isArray(players) && players.length >= 50 && players.every(player => fields.every(field => player[field] !== undefined) && !isInvalidTeamValue(player.team));
@@ -64,6 +82,13 @@ export function createPlayersScript(players, updatedAt) {
     `(function(root){"use strict";root.DEFAULT_PLAYERS=${JSON.stringify(publicPlayers)};})(typeof window!=="undefined"?window:globalThis);\n`;
 }
 
+// 干员数据脚本：与 data/arknights-operators.js 生成的文件保持同一挂载方式，
+// 但内容是"种子 + 管理员覆盖"后的生效列表。
+export function createOperatorsScript(operators, updatedAt) {
+  return `// PRTS server sync: ${updatedAt || "built-in"}\n` +
+    `(function(root){"use strict";root.ARKNIGHTS_OPERATORS=${JSON.stringify(operators)};})(typeof window!=="undefined"?window:globalThis);\n`;
+}
+
 export function contentType(filePath) {
   return ({
     ".html":"text/html; charset=utf-8", ".css":"text/css; charset=utf-8",
@@ -71,6 +96,24 @@ export function contentType(filePath) {
     ".png":"image/png", ".jpg":"image/jpeg", ".jpeg":"image/jpeg",
     ".svg":"image/svg+xml", ".ico":"image/x-icon"
   })[path.extname(filePath).toLowerCase()] || "application/octet-stream";
+}
+
+// 静态文件白名单：仅放行页面引用的 HTML/图片、css/ 与 js/ 目录、以及 data/arknights-operators.js。
+// 其余一律 404，防止 .env、*.mjs、data/*.json、logs/ 等被下载。
+const STATIC_DIRS = new Set(["css", "js"]);
+const STATIC_FILES = new Set([
+  "home.html", "play.html", "index.html", "arknights.html", "arknights-tool.html", "admin.html",
+  "prbetlogo.png", "prbetlogo_square.png", "data/arknights-operators.js"
+]);
+
+export function isPublicStaticPath(relative) {
+  const normalized = String(relative || "").replace(/\\/g, "/").replace(/\/{2,}/g, "/").replace(/^\.\//, "");
+  if (!normalized || normalized.includes("\0")) return false;
+  if (STATIC_FILES.has(normalized)) return true;
+  const segments = normalized.split("/");
+  if (segments.some(segment => segment.startsWith("."))) return false;
+  return segments.length >= 2 && STATIC_DIRS.has(segments[0])
+    && /\.(css|js|png|jpe?g|svg|ico|woff2?)$/i.test(normalized);
 }
 
 async function loadBuiltInPlayers() {
@@ -183,7 +226,11 @@ export async function startServer() {
       else if (url.pathname === "/tool" || url.pathname === "/tool/") relative = "index.html";
       else if (url.pathname === "/arknights" || url.pathname === "/arknights/") relative = "arknights.html";
       else if (url.pathname === "/arknights-tool" || url.pathname === "/arknights-tool/") relative = "arknights-tool.html";
-      else relative = decodeURIComponent(url.pathname).replace(/^[/\\]+/, "");
+      else {
+        try { relative = decodeURIComponent(url.pathname).replace(/^[/\\]+/, ""); }
+        catch { response.writeHead(400); response.end("Bad request"); return; }
+      }
+      if (!isPublicStaticPath(relative)) { response.writeHead(404); response.end("Not found"); return; }
 
       const filePath = path.resolve(ROOT, relative);
       if (filePath !== ROOT && !filePath.startsWith(ROOT + path.sep)) {

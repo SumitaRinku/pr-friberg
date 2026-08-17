@@ -5,8 +5,8 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=root
-Group=root
+User=friberg
+Group=friberg
 WorkingDirectory=/var/www/friberg
 EnvironmentFile=/var/www/friberg/.env
 ExecStart=/usr/bin/node /var/www/friberg/admin-server.mjs
