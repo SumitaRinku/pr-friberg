@@ -82,6 +82,7 @@
 
   function rankGuesses(players, candidates, history) {
     const used = new Set(history.map(function (entry) { return entry.player.id.toLowerCase(); }));
+    const possibleIds = new Set(candidates.map(function (candidate) { return candidate.id.toLowerCase(); }));
     const maxEntropy = candidates.length > 1 ? Math.log2(candidates.length) : 1;
     return players
       .filter(function (player) { return !used.has(player.id.toLowerCase()); })
@@ -91,7 +92,7 @@
           player: player,
           entropy: entropy,
           score: Math.round(Math.min(1, entropy / maxEntropy) * 100),
-          possible: candidates.indexOf(player) !== -1
+          possible: possibleIds.has(player.id.toLowerCase())
         };
       })
       .sort(function (a, b) {

@@ -27,6 +27,7 @@
   };
 
   let players = loadJson(STORAGE.players, builtInPlayers);
+  let playersRevision = 0;
   let history = loadJson(STORAGE.history, []);
   let selectedPlayer = null;
   let searchIndex = -1;
@@ -192,6 +193,17 @@
     });
   }
   function currentCandidates() { return applyCandidateFilters(Engine.filterCandidates(players, history)); }
+  // 窗口式页码：始终给出首/尾页与当前页附近，中间用省略号，不再截断后面的页。
+  function pageButtons(current, pages) {
+    const wanted = [...new Set([1, 2, pages - 1, pages, current - 1, current, current + 1].filter(n => n >= 1 && n <= pages))].sort((a, b) => a - b);
+    const parts = []; let previous = 0;
+    for (const n of wanted) {
+      if (n - previous > 1) parts.push('<span class="page-gap">…</span>');
+      parts.push('<button data-page="' + n + '" class="' + (n === current ? "active" : "") + '">' + n + '</button>');
+      previous = n;
+    }
+    return parts.join("");
+  }
   function renderCandidates(candidates, rankings) {
     let shown = candidates.slice();
     const scoreMap = new Map(rankings.map(function (r) { return [r.player.id.toLowerCase(), r.entropy]; }));
@@ -205,7 +217,7 @@
     }).join("");
     els.noCandidates.hidden = shown.length !== 0; els.candidateBody.parentElement.hidden = shown.length === 0;
     els.summary.textContent = "共 " + shown.length + " 位候选 · 第 " + page + " / " + pages + " 页";
-    els.pagination.innerHTML = Array.from({length:pages}, function (_, i) { const n=i+1; return '<button data-page="' + n + '" class="' + (n===page?"active":"") + '">' + n + '</button>'; }).slice(0,8).join("");
+    els.pagination.innerHTML = pageButtons(page, pages);
   }
 
   function renderRecommendation(candidates, rankings) {
@@ -226,9 +238,24 @@
     els.sessionStatus.textContent = !history.length ? "等待开始" : own >= 8 ? "已到猜测上限" : "推理中 · 还剩 " + (8-own) + " 次";
     els.undo.disabled = !history.length; els.reset.disabled = !history.length; els.dataCount.textContent = players.length;
   }
+  // 熵排名只依赖题库与已录入反馈（history），与表格筛选条件无关。
+  // 按 history 缓存，避免筛选输入框每次按键都重算 ~900×900 次反馈签名导致卡顿。
+  let rankingCache = { key: null, candidates: [], rankings: [] };
+  function rankingKey() {
+    return playersRevision + "|" + history.map(entry => entry.player.id + ">" + Engine.FIELD_ORDER.map(field => entry.feedback[field]).join(",")).join(";");
+  }
+  function currentRankings() {
+    const key = rankingKey();
+    if (rankingCache.key !== key) {
+      const logical = Engine.filterCandidates(players, history);
+      rankingCache = { key: key, candidates: logical, rankings: Engine.rankGuesses(players, logical, history) };
+    }
+    return rankingCache;
+  }
   function render() {
-    const candidates = currentCandidates(); const rankings = Engine.rankGuesses(players, candidates, history);
-    renderHistory(); renderCandidates(candidates, rankings); renderRecommendation(candidates, rankings); renderProgress(candidates.length);
+    const ranked = currentRankings();
+    const candidates = currentCandidates();
+    renderHistory(); renderCandidates(candidates, ranked.rankings); renderRecommendation(ranked.candidates, ranked.rankings); renderProgress(ranked.candidates.length);
   }
 
   els.search.addEventListener("input", function () { searchIndex=-1; renderSearch(); });
@@ -258,8 +285,8 @@
   document.querySelectorAll("[data-modal]").forEach(function(b){b.addEventListener("click",function(){$("#"+b.dataset.modal).hidden=false;});});
   document.querySelectorAll(".modal-wrap").forEach(function(wrap){wrap.addEventListener("click",function(e){if(e.target===wrap||e.target.closest(".modal-close"))wrap.hidden=true;});});
   $("#exportData").addEventListener("click",function(){const blob=new Blob([JSON.stringify(players,null,2)],{type:"application/json"});const link=document.createElement("a");link.href=URL.createObjectURL(blob);link.download="fragle-players.json";link.click();URL.revokeObjectURL(link.href);});
-  $("#importData").addEventListener("change",function(event){const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(){try{const data=JSON.parse(reader.result);const fields=["id","team","country","region","age","role","majorWins","majorApps","status"];if(!Array.isArray(data)||!data.length||data.some(function(p){return fields.some(function(f){return p[f]===undefined;});}))throw new Error("format");players=data;localStorage.setItem(STORAGE.players,JSON.stringify(players));history=[];save();populateCandidateFilters();render();$("#dataModal").hidden=true;showToast("已导入 "+players.length+" 位选手");}catch(_){showToast("JSON 格式不正确");}};reader.readAsText(file);event.target.value="";});
-  $("#restoreData").addEventListener("click",function(){players=builtInPlayers.slice();localStorage.removeItem(STORAGE.players);history=[];save();populateCandidateFilters();render();showToast("已恢复内置选手库");});
+  $("#importData").addEventListener("change",function(event){const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(){try{const data=JSON.parse(reader.result);const fields=["id","team","country","region","age","role","majorWins","majorApps","status"];if(!Array.isArray(data)||!data.length||data.some(function(p){return fields.some(function(f){return p[f]===undefined;});}))throw new Error("format");players=data;playersRevision++;localStorage.setItem(STORAGE.players,JSON.stringify(players));history=[];save();populateCandidateFilters();render();$("#dataModal").hidden=true;showToast("已导入 "+players.length+" 位选手");}catch(_){showToast("JSON 格式不正确");}};reader.readAsText(file);event.target.value="";});
+  $("#restoreData").addEventListener("click",function(){players=builtInPlayers.slice();playersRevision++;localStorage.removeItem(STORAGE.players);history=[];save();populateCandidateFilters();render();showToast("已恢复内置选手库");});
 
   populateCandidateFilters();
   render();

@@ -47,3 +47,4 @@ body.light{--bg:#eceee9;--panel:#f9faf7;--panel2:#eef0eb;--line:#d6d9d2;--soft:#
 .site-bridge-primary strong { color: #a8d2f2; }
 .site-bridge-author { border-left-color: #657f98; }
 @media (max-width: 620px) { .site-bridge { grid-template-columns: 1fr; gap: 8px; } .site-bridge-card { min-height: 96px; padding: 14px 44px 14px 15px; } .site-bridge-card strong { font-size: 16px; } .site-bridge-card small { font-size: 11px; } }
+.table-footer .page-gap{display:inline-flex;align-items:center;padding:0 4px;color:#696f79}

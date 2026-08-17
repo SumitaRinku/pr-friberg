@@ -367,8 +367,11 @@ export class ArknightsGameManager {
     if (feedback.nickname === "exact") this.finishRound(room, participant.token, "guessed");
     else if (participant.guesses.length >= MAX_GUESSES) {
       participant.failed = true;
+      // 与投降、退出保持同一语义：只剩一名可作答玩家时该玩家立即赢下本局，
+      // 全部耗尽则本局平局，不再拖到超时判平。
       const active = room.players.filter(player => !player.left && !player.failed && !player.surrendered);
-      if (active.length === 0) this.finishRound(room, null, "all_failed");
+      if (active.length === 1) this.finishRound(room, active[0].token, "last_active");
+      else if (active.length === 0) this.finishRound(room, null, "all_failed");
     }
     return this.roomState(room, accessToken);
   }

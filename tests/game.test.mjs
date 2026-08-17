@@ -192,13 +192,15 @@ const failed = new GameManager(players, { now:()=>failedNow, random:()=>0 });
 const failedHost = failed.createRoom("Failed A", "private", null, { scoreToWin:2 });
 const failedGuest = failed.joinRoom(failedHost.roomCode, "Failed B");
 readyAndStart(failed, failedHost, failedGuest);
-for (let index=1; index<=8; index+=1) failed.guessRoom(failedHost.roomCode, failedHost.playerToken, `Player${index}`);
+// 先耗尽全部猜测的玩家等同于投降：唯一仍在作答的对手立即赢下本局。
 let failedState;
-for (let index=1; index<=8; index+=1) failedState = failed.guessRoom(failedHost.roomCode, failedGuest.playerToken, `Player${index}`);
+for (let index=1; index<=8; index+=1) failedState = failed.guessRoom(failedHost.roomCode, failedHost.playerToken, `Player${index}`);
 assert.equal(failedState.status, "round_settling");
 assert.equal(failedState.currentRound, 1);
-assert.equal(failedState.roundResults[0].result, "all_failed");
+assert.equal(failedState.roundResults[0].result, "last_active");
+assert.equal(failedState.roundWins[failedGuest.playerId], 1);
 assert.deepEqual(failedState.answer, players[0]);
+assert.throws(()=>failed.guessRoom(failedHost.roomCode, failedGuest.playerToken, "Player1"), /本局尚未开始或已经结束/);
 failedNow += GAME_CONSTANTS.ROUND_INTERMISSION_MS;
 const failedNextRound = failed.getRoom(failedHost.roomCode, failedGuest.playerToken);
 assert.equal(failedNextRound.status, "playing");
